@@ -31,15 +31,13 @@ class ChatResponse(BaseModel):
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    groq_api_key = os.getenv("GROQ_API_KEY")
     openai_api_key = os.getenv("OPENAI_API_KEY")
     configured_base_url = os.getenv("OPENAI_BASE_URL")
     using_groq = (
-        bool(groq_api_key)
-        or (openai_api_key or "").startswith("gsk_")
+        (openai_api_key or "").startswith("gsk_")
         or "groq.com" in (configured_base_url or "")
     )
-    api_key = groq_api_key or openai_api_key
+    api_key = openai_api_key
     base_url = (
         os.getenv("GROQ_BASE_URL", GROQ_BASE_URL)
         if using_groq
@@ -87,7 +85,7 @@ async def chat(payload: ChatRequest, request: Request) -> ChatResponse:
     if client is None:
         raise HTTPException(
             status_code=503,
-            detail="Configure GROQ_API_KEY, OPENAI_API_KEY, or OPENAI_BASE_URL in backend/.env to enable chat.",
+            detail="Configure OPENAI_API_KEY or OPENAI_BASE_URL in backend/.env to enable chat.",
         )
 
     try:
@@ -97,9 +95,9 @@ async def chat(payload: ChatRequest, request: Request) -> ChatResponse:
         )
     except OpenAIError as exc:
         error_message = str(getattr(exc, "message", None) or exc)
-        for secret in (os.getenv("GROQ_API_KEY"), os.getenv("OPENAI_API_KEY")):
-            if secret:
-                error_message = error_message.replace(secret, "[REDACTED]")
+        secret = os.getenv("OPENAI_API_KEY")
+        if secret:
+            error_message = error_message.replace(secret, "[REDACTED]")
         logger.error(
             "LLM provider request failed (status=%s, request_id=%s): %s",
             getattr(exc, "status_code", None),

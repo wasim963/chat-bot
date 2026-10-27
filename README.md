@@ -18,17 +18,15 @@ pip install -r requirements.txt
 cp .env.example .env
 ```
 
-Set `GROQ_API_KEY` in `backend/.env` (optionally change `GROQ_MODEL` from
-`openai/gpt-oss-120b`), then start the API:
+Set `OPENAI_API_KEY` in `backend/.env` to your Groq API key (optionally change
+`GROQ_MODEL` from `openai/gpt-oss-120b`), then start the API:
 
 ```bash
 uvicorn app.main:app --reload
 ```
 
-The backend loads `backend/.env` automatically. For a Groq key previously saved as
-`OPENAI_API_KEY`, either rename it to `GROQ_API_KEY` or set
-`OPENAI_BASE_URL=https://api.groq.com/openai/v1`. A Groq key beginning with
-`gsk_` is also detected automatically when saved as `OPENAI_API_KEY`.
+The backend loads `backend/.env` automatically. Groq keys beginning with `gsk_`
+are detected automatically when saved as `OPENAI_API_KEY`.
 
 The API is available at `http://localhost:8000`. The interactive API docs are at
 `http://localhost:8000/docs`.
